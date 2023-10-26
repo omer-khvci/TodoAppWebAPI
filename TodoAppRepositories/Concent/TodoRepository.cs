@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,54 +18,52 @@ namespace TodoAppRepositories.Concent
         {
             _context = context;
         }
-        public async Task<Todo> Create(Todo item)
+        public async Task Create(Todo item)
         {
-            await _context.Todos.AddAsync(item);
-            await _context.SaveChangesAsync();
-            return item;
+            using (var context = new TodoAppContext.TodoAppContext())
+            {
+                context.Todos.Add(item);
+                await context.SaveChangesAsync();
+            }
         }
 
-        public async Task<Todo> Delete(int id)
+        public async Task Delete(int id)
         {
             var todoItem = await _context.Todos.FindAsync(id);
 
             if (todoItem == null)
             {
-                return false;
+                return;
             }
 
             _context.Todos.Remove(todoItem);
             await _context.SaveChangesAsync();
-
-            return true;
         }
 
-        public Task<IEnumerable<Todo>> GetAllAsync()
+        public async Task<List<Todo>> GetAllAsync()
         {
-            throw new NotImplementedException();
+            return await _context.Todos.ToListAsync();
         }
 
-        public Task<IEnumerable<Todo>> GetUserTodos(User user)
+        public async Task<List<Todo>> GetUserTodos(User user)
         {
-            throw new NotImplementedException();
+            var userData = await _context.Users.FirstAsync(user.Id);
+
+            var todoIds = userData.TodoIds;
+
+            var todos = await _context.Todos.Where(todo => todo.Id in todoIds).ToListAsync();
+
+            return todos;
         }
 
-        public async Task<Todo> Update(int id, Todo item)
+        public async Task Update(int id, Todo item)
         {
             var todoItem = await _context.Todos.FindAsync(id);
-
-            if (todoItem == null)
-            {
-                return null;
-            }
-
             todoItem.Title = item.Title;
             todoItem.Description = item.Description;
             todoItem.Completed = item.Completed;
 
             await _context.SaveChangesAsync();
-
-            return todoItem;
         }
     }
 }

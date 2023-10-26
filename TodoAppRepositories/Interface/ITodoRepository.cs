@@ -9,10 +9,10 @@ namespace TodoAppRepositories.Interface
 {
     public interface ITodoRepository
     {
-        Task<Todo> Create(Todo item);
-        Task<Todo> Update(int id,Todo item);
-        Task<Todo> Delete(int id);
-        Task<IEnumerable<Todo>> GetAllAsync();
-        Task<IEnumerable<Todo>> GetUserTodos(User user);
+        Task Create(Todo item);
+        Task Update(int id,Todo item);
+        Task Delete(int id);
+        Task<List<Todo>> GetAllAsync();
+        Task<List<Todo>> GetUserTodos(User user);
     }
 }
